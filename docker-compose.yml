@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  agent-runner:
+    build:
+      context: .
+    image: local/agent-runner:baseline
+    user: "10001:10001"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+      - seccomp=./profiles/seccomp-agent.json
+      - apparmor=docker-agent-default
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    pids_limit: 256
+    mem_limit: 768m
+    environment:
+      OPENAI_API_KEY_FILE: /run/secrets/api_token
+      TOOL_STATE_DIR: /workspace/state
+    secrets:
+      - api_token
+    volumes:
+      - ./workspace:/workspace:rw
+      - ./logs:/var/log/agent:rw
+    networks:
+      - sandbox
+
+networks:
+  sandbox:
+    internal: true
+
+secrets:
+  api_token:
+    file: ./secrets/api_token.txt

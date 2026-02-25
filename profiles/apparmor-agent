@@ -1,0 +1,11 @@
+#include <tunables/global>
+
+profile docker-agent-default flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+  network inet stream,
+  network inet6 stream,
+  deny mount,
+  deny ptrace (trace,read,tracedby,readby),
+  deny /sys/** wklx,
+  deny /proc/sysrq-trigger rwklx,
+}
